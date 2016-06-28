@@ -1,5 +1,9 @@
 # pebble-pomodoro
 
+This is app is available in 
+
+https://apps.getpebble.com/en_US/application/5772e69e6c21047b2c00040d
+
 I couldn't find an app of pomodoro in pebble store that allows long breaks, memorize the time when existing or receiving a notification and shows the time, so I based an app I was using and wrote one
 
 This pomodoro app in pebble can:
