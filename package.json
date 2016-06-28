@@ -1,0 +1,69 @@
+{
+    "author": "Shawn Xiang",
+    "dependencies": {
+        "pebble-clay": "^1.0.0"
+    },
+    "keywords": [],
+    "name": "pomodo",
+    "pebble": {
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "pomodo",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "RestTime",
+            "WorkTime",
+            "LongRestTime",
+            "LongRestFrequency"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/icon256.png",
+                    "menuIcon": true,
+                    "name": "logo",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk"
+                    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/x_pb.png",
+                    "name": "X_BTN",
+                    "type": "png"
+                },
+                {
+                    "file": "images/trash-icon.png",
+                    "name": "TRASH_BTN",
+                    "type": "png"
+                },
+                {
+                    "file": "images/play_green.png",
+                    "name": "PLAY_BTN",
+                    "type": "png"
+                },
+                {
+                    "file": "images/config_btn.png",
+                    "name": "CONFIG_BTN",
+                    "targetPlatforms": null,
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk"
+        ],
+        "uuid": "c11be61e-7837-4a76-a8c9-9e3071558c19",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
