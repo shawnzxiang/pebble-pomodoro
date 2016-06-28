@@ -47,7 +47,12 @@ static void initialise_ui(void) {
   s_res_config_btn = gbitmap_create_with_resource(RESOURCE_ID_CONFIG_BTN);
 
   // initialize the timer layer
-  timer_layer = text_layer_create(GRect(-3, 45, 117, 61));
+  #if defined(PBL_ROUND)
+    timer_layer = text_layer_create(GRect(10, 48, 127, 61));
+  #else 
+    timer_layer = text_layer_create(GRect(-3, 45, 117, 61));
+  #endif
+  
   text_layer_set_background_color(timer_layer, GColorClear);
   text_layer_set_text_alignment(timer_layer, GTextAlignmentCenter);
   text_layer_set_text_color(timer_layer, GColorWhite);
@@ -55,7 +60,12 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)timer_layer);
 
   // initialize the counter layer
-  counter_layer = text_layer_create(GRect(0, 100, 114, 25));
+  #if defined(PBL_ROUND)
+    counter_layer = text_layer_create(GRect(10, 100, 124, 25));
+  #else 
+    counter_layer = text_layer_create(GRect(0, 100, 114, 25));
+  #endif
+  
   text_layer_set_background_color(counter_layer, GColorClear);
   text_layer_set_text_alignment(counter_layer, GTextAlignmentCenter);
   text_layer_set_text_color(counter_layer, GColorWhite);
@@ -63,7 +73,12 @@ static void initialise_ui(void) {
   layer_add_child(window_get_root_layer(s_window), (Layer *)counter_layer); 
 
   // initialize the current clock layer
-  clock_layer = text_layer_create(GRect(0, 10, 120, 30));
+  #if defined(PBL_ROUND)
+    clock_layer = text_layer_create(GRect(20, 10, 140, 30));
+  #else 
+    clock_layer = text_layer_create(GRect(0, 10, 120, 30));
+  #endif
+  
   text_layer_set_background_color(clock_layer, GColorClear);
   text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
   text_layer_set_text_color(clock_layer, GColorWhite);
@@ -94,16 +109,26 @@ static void destroy_ui(void) {
 
 static void configRunningUI(){
   window_set_background_color(s_window, GColorKellyGreen);
+  
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_x_btn);
 }
 
 static void configPauseUI(){
-  window_set_background_color(s_window, GColorVividCerulean);
+  
+    window_set_background_color(s_window, GColorVividCerulean);
+  
+    
+  
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_x_btn);
 }
 
 static void configDefaultUI(){
-  window_set_background_color(s_window, GColorChromeYellow);
+  #if defined(PBL_COLOR)
+    window_set_background_color(s_window, GColorChromeYellow);
+  #elif defined(PBL_BW)
+    window_set_background_color(s_window, GColorLightGray);
+  #endif
+  
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_play_btn);
 }
 
@@ -114,7 +139,7 @@ static char* getStatus(){
   } else if (mode == MODE_RUNNING_WORK){
     return "Work";
   } else {
-    return "Pause"; 
+    return "Paused"; 
   }
 }
 
@@ -139,7 +164,10 @@ static char* postfixNumber(int counters){
 static void updateStatusAndCounter(){
   // bug warning: the size MUST match the array size, otherwise counter will reset every time
   // http://stackoverflow.com/questions/21646320/sprintf-in-c-resets-the-value-of-counting-variable
-  snprintf(counterText, 20, "%s (%d%s)", getStatus(), counter, postfixNumber(counter));
+  if (mode != MODE_PAUSED)
+    snprintf(counterText, 20, "%s (%d%s)", getStatus(), counter, postfixNumber(counter));
+  else 
+    snprintf(counterText, 20, "Paused");
   
   text_layer_set_text(counter_layer, counterText);
 }
@@ -330,9 +358,7 @@ void show_mainwindow(void) {
 }
 
 void hide_mainwindow(void) {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "hide window  RAW: %d", m*60+s);
   persist_write_int(SAVED_TIME, m*60+s); // save the current time stamp 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "hide window  SAVED TIME: %ld", persist_read_int(SAVED_TIME));
   
   window_stack_remove(s_window, true);
   snprintf(timeText, 7, "%.2d:%.2d", m, s);  // changes the time as it elapses

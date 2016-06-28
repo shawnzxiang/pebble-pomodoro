@@ -80,7 +80,7 @@ static void init(void) {
   }
   
   if (!persist_exists(SAVED_TIME)){
-    persist_write_int(SAVED_TIME, 0); 
+    persist_write_int(SAVED_TIME, 1500); 
   } 
   
   
