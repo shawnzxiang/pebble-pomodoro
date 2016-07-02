@@ -16,8 +16,8 @@ This pomodoro app in pebble can:
 
 
 Direction: 
-- Top button: Skip to the next iteration
-- Middle button: Play and skip
+- Top button: Skip to the next iteration while running
+- Middle button: Play and pause
 - Bottom button: Clear everything
 - Go to pebble App in your phone "Apps" tab and tap the app to change the settings (time interval, long break frequency) 
 
