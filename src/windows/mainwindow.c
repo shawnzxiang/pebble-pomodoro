@@ -109,16 +109,22 @@ static void destroy_ui(void) {
 }
 
 static void configRunningUI(){
-  window_set_background_color(s_window, GColorKellyGreen);
+  #if defined(PBL_COLOR)
+    window_set_background_color(s_window, GColorMalachite);
+  #elif defined(PBL_BW)
+    window_set_background_color(s_window, GColorLightGray);
+  #endif
   
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_x_btn);
+ 
 }
 
 static void configPauseUI(){
-  
+  #if defined(PBL_COLOR)
     window_set_background_color(s_window, GColorVividCerulean);
-  
-    
+  #elif defined(PBL_BW)
+    window_set_background_color(s_window, GColorLightGray);
+  #endif
   
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_x_btn);
 }
@@ -163,8 +169,6 @@ static char* postfixNumber(int counters){
 }
 
 static void updateStatusAndCounter(){
-  // bug warning: the size MUST match the array size, otherwise counter will reset every time
-  // http://stackoverflow.com/questions/21646320/sprintf-in-c-resets-the-value-of-counting-variable
   if (mode != MODE_PAUSED)
     snprintf(counterText, 20, "%s (%d%s)", getStatus(), counter+1, postfixNumber(counter+1));
   else 
@@ -180,11 +184,12 @@ static void pauseIt(bool reset){
   
     mode = MODE_PAUSED; // pause it 
     if (reset) {
-      
+      // reset 
       snprintf(timeText, 20, "%.2d:00", worktime);
       
     }
     else {
+      // continue
       snprintf(timeText, 20, "%.2d:%.2d", m, s); 
     }
   
@@ -194,11 +199,12 @@ static void pauseIt(bool reset){
 }
 
 static void runIt(bool reset){
+  
   if (reset) {
       m = worktime;
       s = 0; 
   }
-    //s = 0;
+    
     bool prevModeIsPaused = mode == MODE_PAUSED; 
     mode = MODE_RUNNING_WORK;
   
@@ -212,10 +218,13 @@ static void runIt(bool reset){
     tick_timer_service_subscribe(SECOND_UNIT, updateTimer);  //register the timer
     
     updateStatusAndCounter();
+    snprintf(timeText, 7, "%.2d:%.2d", m, s);  // changes the time as it elapses
+	  text_layer_set_text(timer_layer, timeText);
 }
 
 static void restIt(bool reset){
   if (reset) {
+    // Counter starts from zero
     m = ((counter+1) % longRestDelay != 0 || (counter+1) == 0) ? resttime : longRestTime; 
     s = 0; 
   }
@@ -229,6 +238,8 @@ static void restIt(bool reset){
   tick_timer_service_subscribe(SECOND_UNIT, updateTimer);
   
   updateStatusAndCounter();
+  snprintf(timeText, 7, "%.2d:%.2d", m, s);  // changes the time as it elapses
+	text_layer_set_text(timer_layer, timeText);
 }
 
 static void runNext(){
@@ -296,9 +307,8 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   } else {  // This is MODE_PAUSE 
     if (beforePause == MODE_RUNNING_WORK)
       runIt(false); 
-    else 
+    else if (beforePause == MODE_RUNNING_PAUSE)
       restIt(false); 
-    
   }
   
   updateStatusAndCounter(); 
@@ -331,7 +341,10 @@ static void handle_window_appear(Window* window){
   longRestTime = persist_read_int(CONFIG_LONG_REST); 
   longRestDelay = persist_read_int(CONFIG_LONG_REST_DELAY); 
   
-  mode = persist_read_int(SAVED_MODE); 
+  // the system by default is at pause 
+  mode = MODE_PAUSED; 
+  // if this is paused, this is the default value -> do running next. Otherwise, continue the previous iteration
+  beforePause = persist_read_int(SAVED_MODE) != MODE_PAUSED ? persist_read_int(SAVED_MODE) : MODE_RUNNING_WORK; 
   
   m = persist_read_int(SAVED_TIME) / 60; 
   s = persist_read_int(SAVED_TIME) % 60; 
@@ -349,10 +362,16 @@ static void handle_window_appear(Window* window){
   updateStatusAndCounter(); 
 }
 
-static void handle_window_disappear(Window* window){
+void saveData(){
   persist_write_int(SAVED_TIME, m*60+s); // save the current time stamp 
-  
-  persist_write_int(SAVED_MODE, mode); // save the current mode
+  if (mode != MODE_PAUSED)
+    persist_write_int(SAVED_MODE, mode); // save the current mode
+  else 
+    persist_write_int(SAVED_MODE, beforePause); // save the current mode
+}
+
+static void handle_window_disappear(Window* window){
+  saveData(); 
 }
 
 void show_mainwindow(void) {
@@ -367,7 +386,7 @@ void show_mainwindow(void) {
 }
 
 void hide_mainwindow(void) {
-  persist_write_int(SAVED_TIME, m*60+s); // save the current time stamp 
+  saveData(); 
   
   window_stack_remove(s_window, true);
   snprintf(timeText, 7, "%.2d:%.2d", m, s);  // changes the time as it elapses
