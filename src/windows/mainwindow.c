@@ -12,6 +12,7 @@ int longRestTime = 20;
 int longRestDelay = 4; 
 int counter = 0;
 int mode = MODE_PAUSED;
+int beforePause = MODE_RUNNING_WORK; 
 
 static char timeText[24] = "";
 static char counterText[24] = "";
@@ -19,7 +20,7 @@ static char counterText[24] = "";
 static Window *s_window;
 static GFont s_res_bitham_42_medium_numbers;
 static GFont s_res_roboto_condensed_21;
-static GFont s_res_gothic_bold_14; 
+static GFont s_res_gothic_bold; 
 static GBitmap *s_res_play_btn;
 static GBitmap *s_res_x_btn;
 static GBitmap *s_res_trash_btn;
@@ -38,7 +39,7 @@ static void initialise_ui(void) {
   
   s_res_bitham_42_medium_numbers = fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS);
   s_res_roboto_condensed_21 = fonts_get_system_font(FONT_KEY_ROBOTO_CONDENSED_21);
-   s_res_gothic_bold_14 = fonts_get_system_font(FONT_KEY_GOTHIC_18);
+   s_res_gothic_bold = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
   
   // hook up all resources buttons
   s_res_play_btn = gbitmap_create_with_resource(RESOURCE_ID_PLAY_BTN);
@@ -82,7 +83,7 @@ static void initialise_ui(void) {
   text_layer_set_background_color(clock_layer, GColorClear);
   text_layer_set_text_alignment(clock_layer, GTextAlignmentCenter);
   text_layer_set_text_color(clock_layer, GColorWhite);
-  text_layer_set_font(clock_layer, s_res_gothic_bold_14);
+  text_layer_set_font(clock_layer, s_res_gothic_bold);
   layer_add_child(window_get_root_layer(s_window), (Layer *)clock_layer); 
   
   // initialize all buttons in action layer (right most)
@@ -165,7 +166,7 @@ static void updateStatusAndCounter(){
   // bug warning: the size MUST match the array size, otherwise counter will reset every time
   // http://stackoverflow.com/questions/21646320/sprintf-in-c-resets-the-value-of-counting-variable
   if (mode != MODE_PAUSED)
-    snprintf(counterText, 20, "%s (%d%s)", getStatus(), counter, postfixNumber(counter));
+    snprintf(counterText, 20, "%s (%d%s)", getStatus(), counter+1, postfixNumber(counter+1));
   else 
     snprintf(counterText, 20, "Paused");
   
@@ -182,7 +183,6 @@ static void pauseIt(bool reset){
       
       snprintf(timeText, 20, "%.2d:00", worktime);
       
-        
     }
     else {
       snprintf(timeText, 20, "%.2d:%.2d", m, s); 
@@ -199,21 +199,24 @@ static void runIt(bool reset){
       s = 0; 
   }
     //s = 0;
+    bool prevModeIsPaused = mode == MODE_PAUSED; 
     mode = MODE_RUNNING_WORK;
   
     configRunningUI();
     vibes_short_pulse();
     light_enable_interaction();
   
-    updateCounter(false);  // update counter 
+    if (!prevModeIsPaused)
+      updateCounter(false);  // update counter 
   
     tick_timer_service_subscribe(SECOND_UNIT, updateTimer);  //register the timer
+    
     updateStatusAndCounter();
 }
 
 static void restIt(bool reset){
   if (reset) {
-    m = ((counter % longRestDelay != 0) || counter == 0) ? resttime : longRestTime; 
+    m = ((counter+1) % longRestDelay != 0 || (counter+1) == 0) ? resttime : longRestTime; 
     s = 0; 
   }
   
@@ -224,6 +227,7 @@ static void restIt(bool reset){
   light_enable_interaction();
   
   tick_timer_service_subscribe(SECOND_UNIT, updateTimer);
+  
   updateStatusAndCounter();
 }
 
@@ -287,10 +291,14 @@ static void updateTimer(struct tm *tick_time, TimeUnits units_changed){
 // middle button
 static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
   if(mode == MODE_RUNNING_WORK || mode == MODE_RUNNING_PAUSE){
+    beforePause = mode; 
     pauseIt(false); 
   } else {  // This is MODE_PAUSE 
-    runIt(false); 
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "counter: %d", counter);
+    if (beforePause == MODE_RUNNING_WORK)
+      runIt(false); 
+    else 
+      restIt(false); 
+    
   }
   
   updateStatusAndCounter(); 
@@ -298,6 +306,7 @@ static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
 
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context){
+  beforePause = MODE_RUNNING_WORK; 
   updateCounter(true);
 }
 

@@ -73,6 +73,7 @@ static void init(void) {
 		persist_write_int(CONFIG_REST,5);
     persist_write_int(CONFIG_LONG_REST, 15); 
     persist_write_int(CONFIG_LONG_REST_DELAY, 4); 
+    
 	}
   
   if (!persist_exists(SAVED_MODE)){
@@ -81,6 +82,10 @@ static void init(void) {
   
   if (!persist_exists(SAVED_TIME)){
     persist_write_int(SAVED_TIME, 1500); 
+  } 
+  
+   if (!persist_exists(DATA_COUNTER)){
+    persist_write_int(DATA_COUNTER, 0); 
   } 
   
   

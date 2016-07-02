@@ -34,6 +34,7 @@
                 {
                     "file": "images/x_pb.png",
                     "name": "X_BTN",
+                    "targetPlatforms": null,
                     "type": "png"
                 },
                 {
@@ -65,5 +66,5 @@
             "watchface": false
         }
     },
-    "version": "1.1.0"
+    "version": "1.2.0"
 }
