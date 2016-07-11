@@ -8,7 +8,7 @@ The reason I wrote this is that I couldn't find an app of pomodoro in pebble sto
 
 This pomodoro app in pebble can:
 
-- Customize time (work, rest, long rest and long rest frequency)
+- Customize time (work, rest, long rest and long rest frequency) and UIColor for each situation
 - Ability to take a long break after several iterations
 - Shows the time
 - Easily to set the intervals in pebble app
