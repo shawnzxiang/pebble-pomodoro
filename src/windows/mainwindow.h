@@ -7,7 +7,7 @@ static void initialise_ui(void);
 static void destroy_ui(void);
 static void configPauseUI(); 
 static void configRunningUI();
-static void configDefaultUI(); 
+static void configRestUI(); 
 static void pauseIt(bool);
 static void runIt(bool);
 static void restIt(bool); 

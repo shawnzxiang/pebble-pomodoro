@@ -30,6 +30,10 @@ static TextLayer *counter_layer;
 static TextLayer *clock_layer; 
 static ActionBarLayer *s_actionbarlayer_1;
 
+GColor workScreenColor; 
+GColor restScreenColor; 
+GColor pauseScreenColor; 
+
 static void initialise_ui(void) {
   s_window = window_create();
   window_set_background_color(s_window, GColorClear);
@@ -110,7 +114,7 @@ static void destroy_ui(void) {
 
 static void configRunningUI(){
   #if defined(PBL_COLOR)
-    window_set_background_color(s_window, GColorMalachite);
+    window_set_background_color(s_window, workScreenColor);
   #elif defined(PBL_BW)
     window_set_background_color(s_window, GColorLightGray);
   #endif
@@ -119,9 +123,9 @@ static void configRunningUI(){
  
 }
 
-static void configPauseUI(){
+static void configRestUI(){
   #if defined(PBL_COLOR)
-    window_set_background_color(s_window, GColorVividCerulean);
+    window_set_background_color(s_window, restScreenColor);
   #elif defined(PBL_BW)
     window_set_background_color(s_window, GColorLightGray);
   #endif
@@ -129,9 +133,9 @@ static void configPauseUI(){
   action_bar_layer_set_icon(s_actionbarlayer_1, BUTTON_ID_SELECT, s_res_x_btn);
 }
 
-static void configDefaultUI(){
+static void configPauseUI(){
   #if defined(PBL_COLOR)
-    window_set_background_color(s_window, GColorChromeYellow);
+    window_set_background_color(s_window, pauseScreenColor);
   #elif defined(PBL_BW)
     window_set_background_color(s_window, GColorLightGray);
   #endif
@@ -179,7 +183,7 @@ static void updateStatusAndCounter(){
 
 static void pauseIt(bool reset){
     
-    configDefaultUI();
+    configPauseUI();
     tick_timer_service_unsubscribe();
   
     mode = MODE_PAUSED; // pause it 
@@ -231,7 +235,7 @@ static void restIt(bool reset){
   
   mode = MODE_RUNNING_PAUSE;
   
-  configPauseUI();
+  configRestUI();
   vibes_short_pulse();
   light_enable_interaction();
   
@@ -341,6 +345,7 @@ static void handle_window_appear(Window* window){
   longRestTime = persist_read_int(CONFIG_LONG_REST); 
   longRestDelay = persist_read_int(CONFIG_LONG_REST_DELAY); 
   
+  
   // the system by default is at pause 
   mode = MODE_PAUSED; 
   // if this is paused, this is the default value -> do running next. Otherwise, continue the previous iteration
@@ -375,9 +380,13 @@ static void handle_window_disappear(Window* window){
 }
 
 void show_mainwindow(void) {
+  workScreenColor = GColorFromHEX(persist_read_int(COLOR_WORK)); 
+  restScreenColor = GColorFromHEX(persist_read_int(COLOR_REST)); 
+  pauseScreenColor = GColorFromHEX(persist_read_int(COLOR_PAUSE)); 
+  
   initialise_ui();
   window_set_click_config_provider(s_window, click_config_provider);
-  configDefaultUI();
+  configPauseUI();
   window_set_window_handlers(s_window, (WindowHandlers) {
     .unload = handle_window_unload,
     .appear = handle_window_appear,

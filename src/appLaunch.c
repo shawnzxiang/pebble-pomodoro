@@ -11,6 +11,9 @@ static void prv_default_settings() {
   settings.restTime = 5;
   settings.longRestTime = 15;
   settings.longRestFrequency = 4;
+  settings.restColor = GColorVividCerulean; 
+  settings.workColor = GColorMalachite; 
+  settings.pauseColor = GColorChromeYellow;
 }
 
 // Read settings from persistent storage
@@ -57,8 +60,29 @@ static void prv_inbox_received_handler(DictionaryIterator *iter, void *context) 
   if (templongrestfreq) {
     settings.longRestFrequency = templongrestfreq->value->int32; 
     persist_write_int(CONFIG_LONG_REST_DELAY, settings.longRestFrequency); 
+    
   }
   
+  // work Color
+  Tuple *work_color_t = dict_find(iter, MESSAGE_KEY_WorkColor);
+  if (work_color_t) {
+    settings.workColor = GColorFromHEX(work_color_t->value->int32);
+    persist_write_int(COLOR_WORK, work_color_t->value->int32);
+  }
+  
+  // rest Color
+   Tuple *rest_color_t = dict_find(iter, MESSAGE_KEY_RestColor);
+  if (rest_color_t) {
+    settings.restColor = GColorFromHEX(rest_color_t->value->int32);
+    persist_write_int(COLOR_REST, rest_color_t->value->int32);
+  }
+  
+  // pause Color
+   Tuple *pause_color_t = dict_find(iter, MESSAGE_KEY_PauseColor);
+  if (pause_color_t) {
+    settings.pauseColor = GColorFromHEX(pause_color_t->value->int32);
+    persist_write_int(COLOR_PAUSE, pause_color_t->value->int32);
+  }
 
   // Save the new settings to persistent storage
   prv_save_settings();
@@ -87,6 +111,18 @@ static void init(void) {
    if (!persist_exists(DATA_COUNTER)){
     persist_write_int(DATA_COUNTER, 0); 
   } 
+  
+  if (!persist_exists(COLOR_REST)){
+    persist_write_int(COLOR_REST, 0x00AAFF); 
+  }
+  
+  if (!persist_exists(COLOR_WORK)){
+    persist_write_int(COLOR_WORK, 0x00FF55); 
+  }
+  
+  if (!persist_exists(COLOR_PAUSE)){
+    persist_write_int(COLOR_PAUSE, 0xFFAA00); 
+  }
   
   
   prv_load_settings();

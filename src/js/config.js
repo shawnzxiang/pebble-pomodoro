@@ -48,6 +48,30 @@ module.exports = [
       "max": 12,
       "step": 1
       },
+      {
+      "type": "color",
+      "messageKey": "PauseColor",
+      "defaultValue": "FFAA00",
+      "label": "Pause Screen Color",
+      "sunlight": true,
+      "allowGray": true
+      }, 
+      {
+      "type": "color",
+      "messageKey": "RestColor",
+      "defaultValue": "00AAFF", 
+      "label": "Rest Screen Color",
+      "sunlight": true,
+      "allowGray": true
+      }, 
+      {
+      "type": "color",
+      "messageKey": "WorkColor",
+      "defaultValue": "00FF55",
+      "label": "Running Screen Color",
+      "sunlight": true,
+      "allowGray": true
+      }, 
     ]
   },
   {

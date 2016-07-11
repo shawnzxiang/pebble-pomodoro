@@ -9,20 +9,29 @@
         "capabilities": [
             "configurable"
         ],
-        "displayName": "pomodo",
+        "displayName": "simple pomodo",
         "enableMultiJS": true,
         "messageKeys": [
             "RestTime",
             "WorkTime",
             "LongRestTime",
-            "LongRestFrequency"
+            "LongRestFrequency",
+            "PauseColor",
+            "RestColor",
+            "WorkColor"
         ],
         "projectType": "native",
         "resources": {
             "media": [
                 {
-                    "file": "images/icon256.png",
+                    "file": "images/logo-menu",
                     "menuIcon": true,
+                    "name": "logomenu",
+                    "targetPlatforms": null,
+                    "type": "png"
+                },
+                {
+                    "file": "images/icon256.png",
                     "name": "logo",
                     "targetPlatforms": [
                         "aplite",
@@ -66,5 +75,5 @@
             "watchface": false
         }
     },
-    "version": "1.3.0"
+    "version": "1.4.0"
 }
